@@ -54,6 +54,7 @@
 - visual_mode：
 - premise_device：
 - 画幅：
+- 用户硬约束及来源：
 - 选择理由：
 
 ### Story Contract
@@ -71,6 +72,7 @@
 ### Production Contract
 
 - 目标时长与场数：
+- 集/场编号规则：`E01-S01`
 - 主要出镜人数：
 - 高负担场面：
 - 必须后期承载的精确文字：
