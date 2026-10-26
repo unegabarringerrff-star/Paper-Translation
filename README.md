@@ -1,25 +1,44 @@
-# PaperDrama Skill v1.1.0
+# PaperDrama — Academic PDF to Complete Drama Script Skill (v2.0.0)
 
-功能：论文 PDF/正文 → 结构化事实拆解 → 学术冲突候选 → Drama Blueprint → 事实-剧情溯源 → 两道审核。
+**将一篇学术论文改编为完整、逐集可拍的 Drama 短剧脚本，并保留学术事实溯源。** 直接在 GitHub main 分支维护，不使用版本目录。
 
-## 安装到 Codex
-1. 解压本包，将 `paperdrama-skill` 整个文件夹复制到 Codex 识别的 skills 目录（常见个人路径 `$HOME/.agents/skills/`；若当前环境提供其他路径，以其规范为准）。
-2. 保留文件夹内的 `SKILL.md`、`references/`、`assets/`、`tests/`。
-3. 上传或附上论文 PDF 后，在 Codex 中**直接调用** `paperdrama-paper-to-drama` Skill 即可；不用再写任何“拆分、转译”等关键词或补充提示词。Skill 将自行使用默认参数完成阶段 1，并将 6 个文件保存至 `outputs/<论文文件名>/`。如果宿主支持自动意图匹配且任务意图明确，也可自动匹配；单纯上传 PDF 并不保证宿主一定触发。
-4. 运行 tests/acceptance-tests.md 的 T1–T6 复测。
+## 最简使用方式
+在 Codex 的环境中安装本 Skill，**只上传 PDF 并调用** `paperdrama-paper-to-drama`，无需提供关键词或完整提示词：
 
-## 阶段边界
-此版本不生成视频、不生成完整对白、不做视频渲染；完成后可以交给后续 PaperDrama 剧本/分镜生成模块。
+**第一轮：** Skill 自动读取论文 → 建立学术事实库 → 找戏剧化机会 → 匹配 Drama Blueprint → **当场展示恰好 3 种不同的短剧叙事模板（A/B/C）**，包括角色、冲突、Hook、剧情路线、建议集数和每集时长。**此处必须等待用户选择**，不会擅自挑选生成最终稿。
 
-## 设计依据
-- Carter et al. (2025), KaraokAI, CHI EA, doi:10.1145/3706599.3721113：研究四桶提取 + 歌曲结构蓝图 + 双约束生成。
-- Cristobal et al. (2026), PaperTok, CHI, doi:10.1145/3772318.3790553：四项具体发现、叙事角度候选、Hook 生成/筛选、分镜结构和人机协作。
+**第二轮：** 用户回复 `A`、`B`、`C` 或“选第二套”等，Skill 复用先前分析结果，自动写完**所有集的完整分集、场景、镜头、对白、动作、音效及字幕**，审查后输出 `full_script.md`、`series_outline.md`、`quality_report.md` 和结构化元数据。
 
-PaperDrama 的七标签、Drama Blueprint、事实等级与双重审核是从上述方法发展出的新方案，不应写成两篇论文作者已提出的方法。
+**集数和每集时长按实际论文学术节点与剧情密度规划**，不固定三集，不照搬 PaperTok 的短视频镜头数与表达方式。
 
-## v1.1 更新：PDF + 调用 Skill 即自动执行
-- 新增零关键词入口、自动寻找当前可访问 PDF、默认受众/剧种/集数/输出目录。
-- 多份 PDF 默认逐篇独立处理；不再逐步询问无关参数。
-- 即使需要人工最终审批，也会先交付第一阶段完整结果。
-- 保留事实证据溯源、学术边界与双审查规则。
-- 复测：见 tests/acceptance-tests.md 的 T7–T10。
+## 执行路线
+```
+PDF论文 → 学术事实库
+        → 戏剧化机会（反常识/争议/实验悬念/转折等）
+        → Drama Blueprint（类型/角色/冲突/集数/节奏/表演规则）
+        → 3套候选剧情 A/B/C →【等待用户选择】
+        → 分集大纲 → 场景 → 完整对白 → 镜头/动作/音效/字幕
+        → 学术核验 + 戏剧核验 + 时长核验
+        → 全集完整脚本 full_script.md
+```
+
+## 安装
+克隆/下载本仓库，将包含 `SKILL.md`、`references/`、`tests/` 和 `assets/` 的完整目录放入支持技能加载的 Codex Skills 路径（如个人环境的 `~/.agents/skills/paperdrama-paper-to-drama/`；具体取决于宿主配置）。按宿主说明重新加载/发现技能。
+
+## 交付文件
+- 阶段 A：`paper_facts.md`、`dramatic_opportunities.md`、`drama_blueprints.md`、`template_options.md`、`traceability_matrix.md`、`paperdrama.json`。
+- 阶段 B：`series_outline.md`、**`full_script.md`**、`quality_report.md`；同时更新事实追溯和 JSON；可选 `full_script.json`。
+- 所有文件按论文独立放在 `outputs/<论文文件名>/`；现存文件不静默覆盖。
+
+## 理论参考与创新界限
+- KaraokAI (CHI EA 2025, DOI: 10.1145/3706599.3721113)：学术提取结果与歌曲形式结构独立预处理、联合约束生成。
+- PaperTok (CHI 2026, DOI: 10.1145/3772318.3790553)：参考其**流程组织**——选择核心研究内容、产生多个叙事入口、人工选择和编辑、生成脚本与媒介单元、逐步调整。**不复用其科普语气、固定8镜头/45秒或 TikTok 式画面。**
+- “三套短剧叙事模板门槛”“Drama Blueprint”“人物行动映射”“镜头—原文事实映射”是 PaperDrama 的独立方案，非前两篇论文的原系统功能。
+
+## 版本更新
+- **v2.0**：从只生成论文拆解/蓝图，扩展至选定模板后的完整短剧脚本；增加必选3模板、完整对白与逐镜分镜、集数及每集时长、事实/叙事/制作三道检查。
+- v1.1：调用 Skill + PDF 零关键词完成论文拆解与转译；保留原则，但现在新增一次必要的创作选择。
+- v1.0：论文事实提取、戏剧机会与蓝图。
+
+## 复测
+详见 `tests/acceptance-tests.md`。仅确认 GitHub 文件写入不代表已通过真实 PDF + 两轮交互的端到端测试。
