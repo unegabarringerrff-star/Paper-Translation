@@ -1,35 +1,61 @@
-# PaperDrama v2.0 输出与数据结构规范
+# PaperDrama v2.1｜输出与数据结构规范
 
-## 阶段、状态与文件
-每篇论文有独立输出目录 `outputs/<论文文件名>/`。
+## 默认配置
+- 学术受众：**非本领域大学生**。
+- 媒介：同时支持 **9:16竖屏**、**16:9横屏**短剧，单套故事和对白、逐镜双画幅说明。
+- 首次选择页：**恰好3套**候选，每套**仅** `剧名、主题、设定、背景` 四个字段 + A/B/C 编号；不得泄露故事细节。
+- 分类依据：`references/narrative-library.md`，28主题+42设定+11背景+2可选内容受众，共83个标签；选择页不展示“受众”分类。
+- 每篇论文独立输出到 `outputs/<论文文件名>/`，不静默覆盖旧结果。
 
-**阶段 A｜展示模板等待选择**
-- `paper_facts.md`：论文元数据、文本覆盖情况、学术事实库（四大桶 + 不限于七个叙事标签）、关键限定、原文依据。
-- `dramatic_opportunities.md`：最多四项传播/戏剧化机会及可信度与表演可行性。
-- `drama_blueprints.md`：各候选研究知识点 → 戏剧功能/叙事节拍/表演规则的映射。
-- `template_options.md`：**恰好3套**各有 distinct story mechanics 的选项 A/B/C，用户可选，必须实际在对话展示，不能仅保存在文件。
-- `traceability_matrix.md`：`template/beat | academic_claim | fact_id | PDF页码/节 | literal/analogy/fictional | 约束与风险`。
-- `paperdrama.json`：已完成阶段A的数据，`workflow.status=AWAITING_TEMPLATE_SELECTION`，`selected_template_id=null`，不得出现已完成的最终剧本。
-- 此时**不应**输出 `full_script.md` 作为完成作品。
+## 阶段 A：用户还没选模板
+自动分析论文，保存：
+- `paper_facts.md`：元数据、阅读范围、事实 ID、问题/矛盾/假设/方法/证据/结论/局限、核心限定及来源。
+- `dramatic_opportunities.md`：具有证据锚点的戏剧机会，内部评分和风险。
+- `drama_blueprints.md`：**内部**详细的三套叙事机制、人物关系、冲突、可能的节拍、事实映射、剧集数量与计划时长（这些细节不在选择界面展示）。
+- `template_options.md`：对外可展示的**极简候选卡**，每套仅 `id、title、themes、settings、background`：
+```text
+A｜《有戏剧张力的剧名》
+主题：悬疑、科幻
+设定：系统
+背景：校园
 
-**阶段 B｜用户已确认选项后**
-- `series_outline.md`：最终片名、所选模板、角色设定、总集数、每集学术与剧情目标、每集时长（mm:ss）、总时长、拆集依据。
-- `full_script.md`：**主要交付物**；全部剧集、每场及每镜的时间码/景别/动作/完整对白或明确静默/情绪/BGM/SFX/字幕/学术原文线索与虚构声明。
-- `quality_report.md`：事实与戏剧质量与制作核验，列出各项 PASS/REVIEW/FAIL、修改记录、需人核验项、总时长验算。
-- 更新 `traceability_matrix.md`：新增 `episode/scene/shot | claim | fact_id | 页码和图表 | 虚构性 | 核验`。
-- 更新 `paperdrama.json`：`workflow.status=SCRIPT_READY_FOR_REVIEW` 或 `BLOCKED_FOR_FACT_REVIEW`；`selected_template_id` 必须是实际已确认 A/B/C。
-- `full_script.json` 为可选结构化镜头表，脚本正文不可缺。
+B｜《另一个有戏剧张力的剧名》
+主题：喜剧、脑洞
+设定：灵魂互换
+背景：职场
 
-## paperdrama.json 最小结构（合法 JSON 示例）
+C｜《第三个有戏剧张力的剧名》
+主题：权谋
+设定：强强联合
+背景：架空
+```
+上面内容为**字段格式示意**，不可作为所有论文的固定方案。对话直接展示这三个选项，然后只问“请选择 A、B 或 C”。禁止添加人物、Hook、故事概况、冲突和结局、集数、每集时长、推荐理由、结果/证据说明等内容。
+- `traceability_matrix.md`：内部事实→戏剧结构映射及论文页码。
+- `paperdrama.json`：见下方数据协议。
+
+阶段 A 状态为 `AWAITING_TEMPLATE_SELECTION`，`selected_template_id=null`。不得把任何方案标记为已经由用户确认；`full_script.md` 不能作为完成成果出现。
+
+## 阶段 B：用户选择 A/B/C 后
+保存：
+- `series_outline.md`：剧名、所选方案、总集数、每集题目/学术目标/故事目标/计划时长及总时长。
+- `full_script.md`：**全部剧集**的全部场景、镜头编号、起止秒数、机位、可表演动作、全部对白与人物情绪、配音/环境声/音效/字幕与证据 ID；每镜同时含 `vertical_9_16`、`horizontal_16_9` 两种构图（若用户明确只要一种则按需收敛）。
+- `quality_report.md`：事实一致性、戏剧质量和镜头时长总和审查结果 `PASS / REVIEW / FAIL`。
+- 更新 `traceability_matrix.md` 和 `paperdrama.json`，状态 `SCRIPT_READY_FOR_REVIEW` 或事实无法核实时 `BLOCKED_FOR_FACT_REVIEW`。
+
+## paperdrama.json 样式与必需字段
 ```json
 {
-  "skill_version": "2.0.0",
+  "skill_version": "2.1.0",
   "workflow": {
     "status": "AWAITING_TEMPLATE_SELECTION",
-    "template_options_presented": true,
     "selected_template_id": null,
     "selected_by_user": false,
     "human_approved": false
+  },
+  "defaults": {
+    "academic_audience": "非本领域大学生",
+    "media_aspect_ratios": ["9:16", "16:9"],
+    "language": "zh-CN"
   },
   "paper": {
     "title": "",
@@ -42,8 +68,8 @@
       "fact_id": "F001",
       "bucket": "motivation",
       "tags": ["research_question"],
-      "statement": "示例学术事实",
-      "source": {"pdf_page": 1, "printed_page": null, "section": "Introduction", "locator": "第一段"},
+      "statement": "示例事实（执行时必须替换成原文真实内容）",
+      "source": {"pdf_page": 1, "section": "Introduction", "locator": "第一段"},
       "priority": "A_CORE",
       "certainty": "supported",
       "qualifiers": []
@@ -53,46 +79,11 @@
     {"id": "O01", "type": "curiosity", "source_fact_ids": ["F001"], "risks": []}
   ],
   "template_options": [
-    {
-      "id": "A",
-      "genre": "调查悬疑",
-      "title": "候选标题A",
-      "hook": "一个真实研究问题引发的悬念",
-      "characters": [],
-      "dramatic_mechanism": "以调查推进证据",
-      "beats": [],
-      "episode_count_estimate": 1,
-      "episode_durations_estimate_s": [70],
-      "source_fact_ids": ["F001"],
-      "fiction_disclaimer": "人物桥段为虚构"
-    },
-    {
-      "id": "B",
-      "genre": "伦理困境",
-      "title": "候选标题B",
-      "hook": "",
-      "characters": [],
-      "dramatic_mechanism": "人物决策和代价",
-      "beats": [],
-      "episode_count_estimate": 1,
-      "episode_durations_estimate_s": [85],
-      "source_fact_ids": ["F001"],
-      "fiction_disclaimer": "人物桥段为虚构"
-    },
-    {
-      "id": "C",
-      "genre": "荒诞隐喻",
-      "title": "候选标题C",
-      "hook": "",
-      "characters": [],
-      "dramatic_mechanism": "拟人和寓言",
-      "beats": [],
-      "episode_count_estimate": 2,
-      "episode_durations_estimate_s": [60, 60],
-      "source_fact_ids": ["F001"],
-      "fiction_disclaimer": "人物桥段为虚构"
-    }
+    {"id": "A", "title": "剧名A", "themes": ["悬疑"], "settings": ["系统"], "background": ["校园"]},
+    {"id": "B", "title": "剧名B", "themes": ["喜剧"], "settings": ["灵魂互换"], "background": ["职场"]},
+    {"id": "C", "title": "剧名C", "themes": ["权谋"], "settings": ["强强联合"], "background": ["架空"]}
   ],
+  "internal_blueprints_file": "drama_blueprints.md",
   "series": null,
   "checks": {
     "facts": "REVIEW",
@@ -103,18 +94,20 @@
 }
 ```
 
-**阶段 B 更新示意**：将 `workflow.selected_template_id` 写为用户选择的 `A|B|C`，`selected_by_user=true`，`status=SCRIPT_READY_FOR_REVIEW`（若不满足事实约束则 `BLOCKED_FOR_FACT_REVIEW`）；`series` 应包含：
-- `title`、`total_episode_count`、`total_duration_s`、`episode_duration_s` 数组、`selection_rationale`
-- `episodes[].id/title/duration_s/academic_goal/fact_ids/scenes`
-- `scenes[].id/location/duration_s/shots`
-- `shots[].id/start_s/end_s/duration_s/camera/action/dialogue_lines/subtitles/audio/fact_ids/truth_status`
-- 每条 `dialogue_lines[]` 至少标识角色与完整台词（或注明无对白）。
-- 完整脚本仍必须以 `full_script.md` 交付；数据结构不能取代人能阅读的分镜脚本。
+**注意**：JSON 示例表示字段形状，不是实际论文的事实或固定类型。真正输出必须按论文生成三个叙事机制不同的方案；对外 `template_options` 对象只能保留 5 个属性（含 id），不得包含 `hook`、`characters`、`beats`、`episode_count_estimate`、`plot` 等剧情或制作信息。
 
-## 校验
-1. 正式进入阶段B前必须已在对话展示 A/B/C 三方案并收到选择；阶段A不得暗设 `selected_template_id` 或标记 `selected_by_user=true`。
-2. 全部 `source_fact_ids` 必须引用已有的 fact_id；`A_CORE` 需可定位来源；找不到证据的事实不能写成真实结论。
-3. 每一镜头时间和场景/剧集时长按整数秒保存：`end_s-start_s=duration_s`。逐层检查 `Σshots=scene`、`Σscenes=episode`、`Σepisode=series`。
-4. `full_script.md` 必须涵盖全部剧集的完整对白、表演动作、镜头、音效、场景、字幕和事实锚点；不能只给分集大纲、台词样例或首集。
-5. 不得因剧本变好看而虚构实验结果、统计显著性、研究者自述或真实被试行为。
-6. 未经人类实际最终审核，`human_approved=false`。
+阶段 B 更新 `workflow.selected_template_id`（必须是用户真正选择的 A/B/C）、`selected_by_user=true`，并填写：
+- `series.title`、`series.total_episode_count`、`series.total_duration_s`、`series.episode_duration_s`。
+- `series.episodes[].id/title/duration_s/academic_goal/fact_ids/scenes`。
+- `series.episodes[].scenes[].id/location/duration_s/shots`。
+- `shots[].id/start_s/end_s/duration_s/camera/action/dialogue_lines/subtitles/audio/fact_ids/truth_status/vertical_9_16/horizontal_16_9`。
+- 如用户明确只要一种画幅，记录 `defaults.media_aspect_ratios` 的有效覆盖值并允许省略另一种画幅镜头字段。
+- `full_script.md` 是主要交付，JSON 不可取代实际可读脚本。
+
+## 验收不变量
+1. 首次候选展示：恰好3套；每套仅剧名、主题、设定、背景。保存的 `template_options.md` 与对话内容一致（末尾选择提示不计）。
+2. 默认受众为非本领域大学生；两种画幅同时有实质性构图建议。
+3. 事实 ID 可溯源，研究结论/样本/局限不可因剧情需要被改写。
+4. 全部镜头时间之和 = 场景时长；场景时长之和 = 单集时长；单集时长之和 = 全剧总时长。
+5. 用户未选择前不写最终脚本；用户选择后输出所有剧集的完整对白、镜头、音效；不只输出故事梗概。
+6. 未经用户实际审核，`human_approved=false`。
