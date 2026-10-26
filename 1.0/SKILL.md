@@ -1,0 +1,88 @@
+---
+name: paperdrama-paper-to-drama
+version: 1.0.0
+description: 将学术论文PDF/正文拆解为可追溯的事实单元，再映射到短剧表演结构，输出多种戏剧切入角度、Drama Blueprint、剧情节拍与事实校验报告；此阶段不生成完整对白、视频或分镜素材。
+---
+
+# PaperDrama｜论文拆分与戏剧转译（阶段 1）
+
+## 何时触发
+当用户要求“论文转短剧”“PaperDrama 第一步”“拆分论文并转译为 drama/短剧”“提炼研究冲突并给出剧情骨架”“生成 Drama Blueprint”时启用。普通论文总结、通用视频脚本和完整剧本写作不主动触发。
+
+## 任务定位和成功条件
+把 **论文事实结构** 转换为 **有戏剧潜力且证据可追溯的叙事结构**，不是概括论文，也不是直接创作完整短剧。
+
+输入：至少一篇可读取的论文（PDF、可提取文本或用户粘贴原文）；可选用户指定观众、剧种、时长。缺省：面向非本领域大学生、竖屏连续短剧、每集约45–90秒，优先1–3集（仅建议，不强制固定场景数）。
+
+输出必须包含：`paper_facts.md`、`dramatic_opportunities.md`、`drama_blueprints.md`、`traceability_matrix.md`、`quality_report.md`、`paperdrama.json`；按需另外产出 `reader_summary.md`。将所有输出放入明确的输出目录。不得直接生成视频、分镜图像、虚构实验数据、完整逐句台词。
+
+## 必守规则
+1. **所有学术事实必须有可核验来源**：论文页码、原文章节、尽可能附简短原文定位语；源中没有的事实标注 `UNVERIFIED`，不能作为关键情节事实。引用内容不超过必要短句。
+2. **研究的真实结论不能被剧情需求反向篡改**。不得将相关性写成因果、未显著写成显著、假设写成已证实、局限写成普适结论；数据和样本量原样保留。
+3. **虚构的戏剧表达与学术事实分离**。角色、对话意图、场景、悬念可以设计，但必须标记 `FICTIONAL_DEVICE`，不得伪装成真实研究者经历或实验记录。
+4. **矛盾与反转必须有依据**。可以来自旧观点与新证据、假设与实际结果、实验条件对照、现实痛点与方案、利益相关者需求冲突；如果无真反转，用“发现/澄清/代价/适用边界”，不可捏造数据逆转。
+5. **承认材料不足**：只有摘要就只做摘要范围的拆解；不可补出方法细节、具体统计数值或限制。扫描 PDF 无法解析时标明阻塞并请求可读取版本，不能假装已经阅读全文。
+6. 用户如未指定故事风格，提供3个差异化候选，不因为某种风格更抓马就跳过事实核对。
+7. 避免伪装为来源论文作者采用的方法：本 Skill 是在 KaraokAI 与 PaperTok 的已报告方法基础上提出的 PaperDrama **新转译框架**。
+
+## 执行顺序（必须依次进行）
+
+### Step 0. 读取、索引与覆盖核对
+- 提取标题、作者、年份、DOI/标识符、章节、页码（PDF 的物理页与印刷页码区分）、正文及图表/表格说明。
+- 记录材料范围，核对是否覆盖引言、方法、结果、讨论/局限；无法读取的区域写入 `missing_sections`。
+- 为每条事实创建稳定 `fact_id`（F001...），来源引用包括页码与具体段落/表格/图号；不要凭常识补全。
+
+### Step 1. 论文事实拆解：两层结构
+第一层借鉴 KaraokAI 的四个通用桶：`motivation` 研究动机、`method` 方法、`finding` 发现、`contribution` 贡献。
+第二层新增适配 Drama 的七种**叙事功能标签**（一个事实可同时具有多种标签）：
+`research_question` 研究问题；`knowledge_gap_or_tension` 已有知识缺口/矛盾；`claim_or_hypothesis` 主张/假设；`investigation_action` 研究行动；`evidence` 证据；`outcome` 研究结果；`limitation_or_implication` 局限/启示。
+- 对事实记录：准确表述、所属章节、原文依据、重要性、确定性、可以如何通俗化、是否有反证/边界。
+- 另建 **不可改变的事实约束**：研究样本、实验条件、关键指标、主要结论、局限（原文有则记录）。
+- 将素材标为：`A_CORE`（关键结论/证据/条件，不可改变）；`B_COMPRESSIBLE`（背景或次要细节，可压缩但需要可溯源）；`C_STAGING`（新创作的戏剧包装，禁止冒充事实）。
+
+### Step 2. 筛选“可戏剧化的真实内容”
+借鉴 PaperTok 系统的“先提取四项具体且有现实关联的发现，再生成多种切入角度”的两阶段方式：
+- 从完整论文提取最多4项 `candidate_findings`，不强迫凑数。每项须关联 `fact_ids`，说明具体性、生活关联、证据强度、观看价值。抽象/方法论论文可提取“可解释的关键贡献/方法突破”，但不能冒充实证发现。
+- 围绕这些事实提出最多4个**故事张力来源**：`contradiction` 对立认知；`surprise_or_irony` 意外性；`personal_stakes` 个人利害；`curiosity` 好奇未解。允许某些类型不适用。
+- 每个候选回答：`谁想要什么？`、`阻碍在哪里？`、`靠什么证据推进？`、`高潮揭示什么？`、`哪些东西绝对不能改？`。
+- 与 PaperTok 不同，Hook 不等于已经证实的事实。可用问句引发悬念，不能暗示论文未支持的惊人结果。
+- 自评每个候选的 `fidelity`（证据支撑，0–5）、`dramatic_potential`（戏剧潜力，0–5）、`relevance`（观众关联，0–5）、`adaptability`（可表现性，0–5）；只用于建议排序，不把评分当实测数据。凡 `fidelity < 4` 或核心陈述无来源均不得推荐。
+
+### Step 3. Drama Blueprint（表演媒介蓝图）
+参考 `references/drama-blueprint.md`。与 KaraokAI 中音节/押韵/重复结构/时间戳相对应，这里把 Drama 的结构约束明确为：
+- `genre` 类型（悬疑 / 对抗 / 伦理 / 荒诞等）；`audience`；`episode_count`；`episode_duration_range`。
+- `role_archetypes`：角色功能与立场，不应假称作者本人观点；可设“怀疑者/倡议者/调查者/受影响者”。
+- `central_question` 与 `central_conflict`（必须锚定证据）；`stakes` 与可视化行动；`emotional_arc`。
+- `beats`：`hook → context → confrontation → investigation → evidence_reveal → resolution → boundary_or_next_question`；可以调整合并，但须覆盖必要学术功能。
+- 每个节拍记录：`dramatic_function`、`academic_function`、`source_fact_ids`、`staging_idea`、`truth_status`、`duration_hint_s`、`risk`。
+- `narrative_closure` 必须回应开头悬念；若论文无反转，禁止强行生成反转。
+- `continuity_constraints` 限定人物身份/场景/术语/关键数据，便于后续脚本生成；**此阶段不写完整台词**。
+
+### Step 4. 构建映射与内容取舍
+建立 `traceability_matrix.md`：每行对应一个剧情节拍，列出论文事实、页码、转译方式（literal / analogy / fictionalized staging）、必须保留的限定词、潜在误导点。
+- 输出 **保留**、**压缩**、**移至“查看原文”**、**戏剧化新增** 四类清单；绝不能默默删掉会改变结论的条件。
+- 如果原论文方法较关键，至少安排一个节拍说明重要的条件/对照/样本；若短剧时长不够，推荐分集或屏内事实卡，不得删掉重要条件后宣称结论普适。
+
+### Step 5. 两道审核与修改
+- **事实审核**：逐条检查来源是否存在、数字及术语是否准确、描述是否越过证据、虚构角色是否冒充真人；标记 `PASS / REVIEW / FAIL`，`FAIL` 要修改后再输出推荐蓝图。
+- **戏剧审核**：人物目标清晰吗、冲突是否真实由论文驱动、是否存在行动、悬念是否被回答、有没有空洞的“震惊”措辞。不能为了过戏剧审核而牺牲事实审核。
+- 提供问题清单和下一步建议；未通过事实审核的候选放入“不可用/待人工确认”，不能作为可直接生成剧本的方案。
+
+### Step 6. 导出与交付
+依据 `references/output-schema.md` 完整填写 Markdown 和 JSON，输出三种不同的蓝图候选（若事实不足则少于3个）。给用户推荐一套，但保留替代方案；明确标注哪些是原文事实、哪些为 PaperDrama 的创意设计。最后输出简短复测摘要（发现事实数、已溯源占比、待确认点、可用候选数）。
+
+## 人机分工（默认）
+**AI：** 解析、提取、分类、生成候选冲突/Hook、填写蓝图、执行初步自检、保存结构化结果。
+**用户：** 确认目标观众、选择或调整剧种/角色、审核论文关键事实与局限、批准某一蓝图进入下一阶段。
+生成结果不得宣称已由人类审核；字段 `human_approved` 缺省 `false`。
+
+## 参考来源与新贡献边界
+- KaraokAI（CHI EA 2025）：明确报告 LLM 提取 motivation / methodology / findings / contributions；歌曲蓝图包括 syllables、rhyme、repeated sections、timestamps；将论文结构和歌曲蓝图联合输入 LLM。**未公开具体的 PDF 解析和押韵算法。**
+- PaperTok（CHI 2026）：系统内由 LLM 提取4项具体、可关联现实的核心发现，构思多种切入角度、自评与筛选 Hook；从 Hook 出发构建短视频脚本、编辑与分镜。**不是把原文章节机械映射到固定镜头。**
+- 本 Skill **新提出**：七类戏剧功能标签、角色冲突提取、A/B/C 取舍、事实—剧情映射、Drama Blueprint、双审核。这些不是两篇原文已实现的功能。
+
+## 文件引用
+- `references/drama-blueprint.md`：媒介结构/内容转译规则
+- `references/output-schema.md`：输出文件与 JSON 结构
+- `tests/acceptance-tests.md`：复测输入与通过条件
+- `assets/demo-input.md`：无需 PDF 的小型虚构研究测试输入
