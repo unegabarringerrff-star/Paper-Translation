@@ -1,17 +1,20 @@
-# Drama Blueprint v3.0｜从论文事实到夸张短剧
+# Drama Blueprint v3.1｜从论文事实到夸张短剧
 
 ## 先接受用户给定的世界
 首次输入的 **主题、设定、背景** 是唯一创作方向，不是让AI再生成三组选项。优先用户原话；标签库仅帮助解释用户用词，不抢替用户偏好。若其设定与研究现实相差很大，可通过拟人、隐喻、奇幻场景转译，不能伪称真实研究发生在古代/荒岛/末日等空间。
+
+## 强度先行：五级区别决定蓝图
+在填六类语法前先读取 `references/dramatic-intensity.md`：1级研究还原优先，2级轻度剧情，3级证据驱动冲突，4级高代价强镜头，5级高度架空娱乐。角色、冲突、节奏和镜头须随档位变，低强度不得被统一写成反派阴谋。事实库不变，正片学术事实去向另写 `content_tradeoff_report.md`。
 
 ## 六类媒介表演语法（唯一蓝图必须具体填写）
 | 要素 | 结构化字段 | 设计重点 |
 |---|---|---|
 | 人物 | count, identity, goal, personality, relationships, vulnerability, secret | 角色有明确欲望、软肋、关系和改变 |
-| 冲突 | opposing_demands, obstacles, escalation, irreversible_choice | 逐级升级、有对抗和真正代价 |
+| 冲突 | opposing_demands, obstacles, escalation, irreversible_choice | 3–5级逐级升级、强调真正代价；1–2级可用探索/轻度分歧，不强求不可逆冲突 |
 | 情节 | inciting_incident, actions, surprise, climax, outcome, consequence | 角色决定引发下一行动，而非随机强转折 |
 | 情绪 | emotional_beats, contrast, release | 好奇/紧张/怀疑/惊讶/释然不需逐项凑齐 |
 | 表演 | dialogue_tone, pauses, actions, expressions, camera, blocking | 对白有潜台词，动作和镜头推进信息 |
-| 节奏 | opening_hook, turning_points, episode_cliffhangers, silence_beats | 前3–5秒视觉钩子、高潮前后反差、集尾悬念 |
+| 节奏 | opening_hook, turning_points, episode_cliffhangers, silence_beats | 4–5级强调前3–5秒视觉钩子与悬念；1–2级可以让研究问题逐步浮现 |
 
 按用户剧种决定何种冲突合理。科幻/宫斗/悬疑/爱情均允许极大叙事想象，但论文研究结论与虚构人物冲突必须区隔。内部 Blueprint 只有**一份已选世界观**，没有 A/B/C、generation_round 或等待选择状态。
 
@@ -30,4 +33,4 @@
 每个真实学术主张必须关联fact_ids、论文位置和重要限定。原文没有的研究元素用 NOT_APPLICABLE。允许把不宜上屏的次要信息压缩或删除。每个场景优先有 action/counteraction 而不是单纯按 Introduction/Methods/Results 分幕。
 
 ## 生成顺序
-用户主题/设定/背景 → 一个世界规则 → 一组角色与冲突 → 选取1–4个核心研究锚点 → 情节因果链 → 剧集与镜头。先通过 sources_check，然后进入 cinematic_tension 结构审查。无中途选择与模板预览。
+用户主题/设定/背景 + 戏剧强度1–5 → 完整论文事实库 → 按档位选取/安排学术锚点 → 一个世界规则 → 按强度匹配角色与冲突 → 情节因果链 → 剧集与镜头。先通过 sources_check，然后进入 cinematic_tension 结构审查。无中途选择与模板预览。
