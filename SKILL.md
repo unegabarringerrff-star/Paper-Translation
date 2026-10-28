@@ -75,7 +75,7 @@ description: 将可读学术论文转译为有趣、可表演的中文真人竖�
 
 读取 [quality-gates.md](references/quality-gates.md) 和 [output-schema.md](references/output-schema.md)。
 
-事实、分档创作和交接检查通过后，交付五份 UTF-8 TXT，其中 03 是唯一默认送入 MicroDrama 的文件。已有同名产出不得静默覆盖。没有实际视频时，只能确认文本准备度，生成结果保持 UNVERIFIED。
+事实、分档创作和交接检查通过后，交付五份 UTF-8 TXT，其中 03 是唯一默认送入 MicroDrama 的文件。已有同名产出不得静默覆盖。没有实际视频时，只能确认文本准备度。交付在文本检查通过后结束。
 
 关键事实阻断时，不交付生产就绪的五份文件或 03；保留已整理的可靠事实与阻断清单，说明缺少的章节、页码、图表或原文。
 
@@ -90,6 +90,6 @@ description: 将可读学术论文转译为有趣、可表演的中文真人竖�
 - [cinematic-tension.md](references/cinematic-tension.md)：场景张力、可见行动和声音。
 - [script-writing.md](references/script-writing.md)：完整场景写作与时间预算。
 - [scene-handoff.md](references/scene-handoff.md)：唯一场景交接模板。
-- [quality-gates.md](references/quality-gates.md)：检查、定向返工与媒体核对边界。
+- [quality-gates.md](references/quality-gates.md)：检查与定向返工。
 - [output-schema.md](references/output-schema.md)：五份 TXT 的交付合同。
 - [acceptance-tests.md](tests/acceptance-tests.md)：待执行验收规范。
