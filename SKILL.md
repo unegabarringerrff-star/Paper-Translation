@@ -1,116 +1,95 @@
-\---  
-name: paperdrama-paper-to-drama  
-description: 将学术论文中的主要研究机制转译为有趣、高张力、可表演的中文短剧，并交付按场景拆分、可直接送入下游视频生成流程的五份 UTF-8 TXT 生产文件。保持核心数据、结论强度和论文主旨准确；人物、世界、关系与情节可大胆虚构。无三套候选、人工选择、项目资产库、平台接口或模型方言。  
-\---
+---
+name: paperdrama-paper-to-drama
+description: 将可读学术论文转译为有趣、可表演的中文真人竖屏短剧，并交付场景级五份 UTF-8 TXT。适用于需要保留研究事实、明确虚构边界和交接 MicroDrama 生成视频的任务；不生成逐镜分镜、人物图片、配音或平台接口文件。
+---
 
-# PaperDrama｜从论文到场景级视频生产包
+# PaperDrama｜论文到真人竖屏场景生产包
 
 ## 目标与边界
 
-把论文主要内容中的真实关系、机制、矛盾或未知边界，放大成值得追看的短剧。严谨性约束论文事实，不限制虚构剧情的强度：数据、结果方向、显著性、因果/相关性质和必要限定不能改；人物、关系、世界、冲突、代价、反转与视觉表现可以大胆创作。
+把论文中的主要问题、发现、机制、矛盾或未知边界转成值得观看的故事。研究事实限制事实表达，不限制人物、关系、世界、冲突、后果和视觉行动的虚构强度。
 
-最终交付是五份纯文本文件，其中 `03_场景脚本_可直接输入.txt` 是唯一默认送入下游视频生成流程的文件。下游负责继续提取人物、拆分镜和生成参考画面；本 Skill 不生成项目资产库、人物图片、配音文件、分镜 JSON、模型专用提示词或平台衔接说明。
+默认交付面向真人、单一 9:16 竖屏。写到场景级：每场提供人物、动作、对白、声音、连续性和必须看见的信息；MicroDrama 继续拆镜、提取人物并生成参考画面。不要预制分镜 JSON、逐镜提示词、人物图片、配音文件、模型参数、平台接口或自动发布流程。
 
-本 Skill 没有必需的可执行脚本或第三方运行依赖。不得因环境未安装 PyYAML、无法运行 `quick_validate.py` 或缺少同类维护工具而中止论文转译与交付。这类工具只用于可选的格式检查，不代替下文的三道内容质量门。
+## 输入与默认值
 
-## 用户输入与一次生成合同
+需要读取论文全文或明确可读范围。记录标题、来源、已读页码或章节和 missing_sections；不能用摘要猜测未读方法或结果。
 
-必须能够读取论文全文或明确可读范围。用户可以自然语言给出以下创作控制项：
+用户可自然语言指定世界、类型、剧情装置、人物、时长、集数、禁忌、受众、语言、画幅或戏剧强度。未指定时默认：中文、非本领域大学生、真人 9:16、戏剧强度 4；系统根据论文自主补齐创作项，并记录假设。用户明确要求某项由其决定时，合并询问缺少项一次。
 
-- `world`：青春校园、现代职场、都市生活、古装架空、近未来、奇幻等。
-- `genre`：轻喜剧、心理悬疑、情感、权谋、冒险、治愈、黑色幽默等。
-- `dramatic_engine`：信息差、选择困境、规则试错、误会解除、身份错位、机制解谜、价值冲突等。
-- `visual_mode`：真人电影感、2D 漫剧、定格、风格化 3D 等。
-- 可选 `premise_device`：系统、重生、穿越、循环、读心、灵魂互换等剧情装置。
-- 可选时长、集数、角色、画幅、禁忌元素和戏剧强度。
+用户给定的约束优先于默认预设，除非它会篡改研究事实或使交付无法成立。先尝试在不改变用户意图的前提下调整表达；仍不能兼容时，说明具体冲突，不要静默删减、改时长或降档。
 
-用户已明确的风格轴、时长、集数、角色、画幅、禁忌元素和戏剧强度都记为 `user_constraints`，并在蓝图、输出和质量门中继续保持。只有与论文事实底线相冲突的要求不得执行，并必须说明原因。缺失项默认由系统根据论文和生产负担补齐并在 `00_项目与风格说明.txt` 记录，不展示候选卡、不询问 A/B/C、不等待中途确认；只有 PDF 无法读取或用户明确要求某项必须由本人决定时才合并询问一次。
+## 事实底线
 
-一个成品只锁定一个主世界、一个主戏剧引擎和一个视觉形态；genre 最多一个主类型加一个辅助类型，dramatic_engine 最多一个辅助引擎。剧情装置必须服务主引擎，不能替代人物选择。默认手机竖屏 9:16；需要其他画幅时另产一份派生包，不在同一场景中混写两套构图。
+读取 [paper-point-selection.md](references/paper-point-selection.md)。
 
-## 连续工作流
+不得改变关键数字、单位、组别、比较对象、结果方向、显著性、因果或相关性质、核心结论及理解结论所必需的条件。论文作者的发现、论文引用的观点和虚构剧情必须分开。虚构人物、现场、阴谋、后果和世界规则不能冒充论文实验、作者经历或已获证明的现实结论。
 
-### Step 0｜读取与输入锁定
+每项主要研究主张记录 fact_id、来源位置、性质、证据状态、重要性和必要限定。覆盖所有主要研究主张及支撑条件；无关细节按需整理。没有实验、统计或未来研究时写 NOT_APPLICABLE，不填造缺失内容。
 
-阅读全文、图表、页码和可见章节，记录 `missing_sections`。建立标题、作者、可读范围和 `user_constraints`，区分用户明确指定与系统补齐。不能用摘要猜测全文方法或结果。
+## 强度预设与用户覆盖
 
-### Step 1｜基础事实与转译边界
+读取 [dramatic-intensity.md](references/dramatic-intensity.md)。强度 1–5 是完整预设，默认 4：
 
-读取 [paper-point-selection.md](references/paper-point-selection.md)。建立带 `fact_id`、页码/章节、原文限定和证据状态的事实表，并划分：
+1. 学术还原型
+2. 轻度剧情型
+3. 证据驱动型
+4. 强冲突短剧型
+5. 极强戏剧型
 
-- 红区：数据、结果方向、显著性、因果/相关性质、核心结论及理解结论所必需的条件，不得修改。
-- 黄区：机制、关系、局限、过程和讨论，可拟人、隐喻、重排或压缩，但不得改变含义。
-- 绿区：人物、关系、世界、阴谋、危险、代价、转折和影像表达，可自由虚构。
+预设同时安排知识覆盖、虚构尺度、人物压力、节奏、动作和声音；用户可以明确覆盖任一维度，例如“4级但完整保留关键方法”或“5级但保持现实校园”。记录预设档位、覆盖项和实际策略。覆盖后若明显偏离标准档位，应标为自定义变体，不得同时声称完全满足标准档位。
 
-虚构故事不得冒充论文实验、作者经历或已被论文证明的现实后果。
+所有档位共用事实、单场独立、连续性和交接完整性底线。5级至少使一个核心发现或核心论证在实际观看内容中参与关键选择、转折或结局；只写论文标题、片尾来源或核对备注不满足要求。
 
-### Step 2｜选择唯一主 Drama 锚点
+## 连续流程
 
-只从论文主要研究问题、核心发现、关键机制、重要讨论或主要局限建立合格池。在内部比较戏剧潜力，选择一个主锚点，最多两个辅助锚点；不向用户输出候选。
+### 1. 读取与事实整理
 
-锚点必须通过基础事实底线，并能解释 `论文关系/机制 → 戏剧世界规则 → 人物选择与后果`。随后按转译合理性、人物利害、反常识/疑问、对抗力、因果升级、视觉化、揭露回报、新鲜度和生产可行性评估。论文事实正确但故事无趣时，改人物关系、代价、世界或戏剧引擎，不改数据和结论。
+建立事实表，区分研究问题、方法、结果、解释、假设、局限和引用观点。为实际剧本中的研究断言保留可核对来源和必要限定。关键事实无法核实，且影响主锚点或必要结论时，转入 BLOCKED_FOR_FACT_REVIEW。
 
-### Step 3｜风格四轴与唯一故事引擎
+### 2. 选择主锚点与内容去向
 
-读取 [style-axes.md](references/style-axes.md)、[narrative-library.md](references/narrative-library.md) 和 [story-engine.md](references/story-engine.md)。先由论文机制确定主 dramatic_engine，再用 genre 规定观看体验、world 把抽象机制变成权力与行动、visual_mode 决定制作形态；premise_device 只负责强化。
+从论文主要内容选择一个主 Drama 锚点，最多两个服务于主锚点的辅助锚点。完成转译链：
 
-建立唯一故事引擎：观众承诺、主角当前欲望、不能退出的压力、对手目标与策略、主角优势与代价、对手学习和反制、逐轮状态变化、揭露/回报以及最终不可逆选择。系统、重生知识或论文知识只能提供选项，不能替人物作决定。
+论文事实或关系 → 机制内核 → 戏剧世界规则 → 人物选择与后果。
 
-### Step 4｜高张力故事与场景规划
+核心选择、主要转折或结局必须依赖论文机制；否则重新选择锚点或转译方式。
 
-使用 [cinematic-tension.md](references/cinematic-tension.md) 把故事写成“因为—行动—结果—下一股压力”的因果链。每场必须有不可替代的剧情目的，并改变信息、权力、关系、情绪、风险或物理状态之一。
+对每项主要事实记录表达方式和承载位置。表达方式可为准确直述、通俗转述、压缩或虚构隐喻；承载位置可为对白、可见行动、后期字幕或图层、辅助核对材料或正片省略。省略正片不等于删除事实记录。任何正片研究断言所需的限定，必须在可听或可见内容中就近承载，不能只放在核对备注。
 
-开场直接给正在发生的异常、冲突、决定或结果；对手会学习，升级必须改变策略而不是只提高音量；先兑现部分观看承诺，再留下由本场结果产生的具体问题。安静场景可以成立，但必须处理前一后果或形成新选择。
+### 3. 建立唯一蓝图和故事引擎
 
-### Step 5｜场景级可拍剧本
+读取 [style-axes.md](references/style-axes.md)、[narrative-library.md](references/narrative-library.md)、[drama-blueprint.md](references/drama-blueprint.md) 和 [story-engine.md](references/story-engine.md)。
 
-读取 [script-writing.md](references/script-writing.md) 和 [scene-handoff.md](references/scene-handoff.md)。写完整故事，但默认停在场景级，不预制下游分镜。
+只创建一个实际执行的世界、人物关系和故事线。设置观众承诺、人物欲望、阻力、优势、代价、状态变化与回报。高档作品需要具体选择、合理反制与后果；低档作品可通过探究、协作或认识修正推进。不要把论文按 Introduction、Methods、Results 机械分幕。
 
-每场都要能够被单独复制使用，包含：所属集 `episode_id`、稳定场号 `scene_id`（如 `E01-S01`）、名称、目标时长、剧情目的、论文锚点、场景环境、出镜人物、仅被提及或画外人物、开场状态、按顺序发生的动作与对白、声音、按当前画幅设定的画面注意重点、结束状态、必须保留的台词/知识点、后期字幕/图层内容、核对备注。
+### 4. 写完整场景
 
-出镜人物必须写稳定识别信息：真人可用年龄段、脸部特征、发型和服装；非人、定格或风格化 3D 角色则改用形态、头部特征、材质、主色、外壳/服装与比例。不适用的人类字段写“不适用”，不得为填满模板把非人强写成真人。
+读取 [script-writing.md](references/script-writing.md)、[cinematic-tension.md](references/cinematic-tension.md) 和 [scene-handoff.md](references/scene-handoff.md)。
 
-动作写可见、常见、能在目标时间内完成的行为；抽象心理必须落成姿势、视线、距离、持物、停顿或对白策略。每句话标明说话人、语气和语言，旁白明确写有或无。台词先按自然朗读估时，再给动作、停顿和反应留时间；不要把必须完整的一句话拆跨场。
+按场景或完整动作与对话单元拆分。每场可单独取出使用，明确出镜、画外或电话声音、仅被提及者和旁白；写清开场状态、按顺序的动作与对白、声音、结束状态、必须保留信息、后期精确文字和核对备注。
 
-### Step 6｜三道质量门与自动修订
+保持真人竖屏可读性：重要人物、动作和物件集中在可见竖向区域；不依赖横向群像、整面复杂图表或画面内小字。写必须看见什么，不替下游制定镜头表。
 
-读取 [quality-gates.md](references/quality-gates.md)。
+### 5. 检查与交付
 
-1. **Academic Floor**：按 [quality-gates.md](references/quality-gates.md) 的六项操作检查逐项 PASS/FAIL；任一 FAIL 必须修复。关键事实无法核验时进入 `BLOCKED_FOR_FACT_REVIEW`。
-2. **Creative Greenlight**：开场、人物利害、主动对抗、因果升级、反转/回报、新鲜度、视觉叙事、情绪反差各 0–5。总分低于 30/40，或开场、利害、升级、视觉任一低于 4，自动重写故事层。
-3. **Handoff Gate**：任取一场都能独立理解和生成；出镜/画外人物明确；起止状态闭合；对白时长可容纳；必须保留信息和后期精确文字已分离；场间连续。
+读取 [quality-gates.md](references/quality-gates.md) 和 [output-schema.md](references/output-schema.md)。
 
-规则分为 `structural_invariant`、`reviewed_invariant`、`craft_default` 和 `taste_option`。只有前两类可以阻断交付；不因审美偏好或与示例不同判失败。
+事实、分档创作和交接检查通过后，交付五份 UTF-8 TXT，其中 03 是唯一默认送入 MicroDrama 的文件。已有同名产出不得静默覆盖。没有实际视频时，只能确认文本准备度，生成结果保持 UNVERIFIED。
 
-### Step 7｜交付五份 TXT
+关键事实阻断时，不交付生产就绪的五份文件或 03；保留已整理的可靠事实与阻断清单，说明缺少的章节、页码、图表或原文。
 
-仅在三道质量门通过后，按 [output-schema.md](references/output-schema.md) 保存到 Skill 根目录的 `outputs/<论文文件名>/`：
+## 参考文件
 
-1. `00_项目与风格说明.txt`
-2. `01_论文事实与转译边界.txt`
-3. `02_故事结构与质量结论.txt`
-4. `03_场景脚本_可直接输入.txt`
-5. `04_连续性与生成后核对.txt`
-
-全部使用 UTF-8 纯文本。`03` 是唯一默认输入下游生成流程的文件；其他文件供创作、事实和结果核对。已有同名文件不得静默覆盖。没有人工核验不得声称论文或生成视频已获人工批准。
-
-若状态为 `BLOCKED_FOR_FACT_REVIEW`，它是交付前状态：不创建或更新五份生产文件，尤其不生成看似可投产的 `03`。只向用户列出缺失的关键事实、所需页码/章节或可读原文；资料补齐后从事实门恢复。
-
-## 来源机制的适配边界
-
-本 Skill 吸收成熟短剧工作流中的故事引擎、场景状态、可见动作、对白行动性、规则分级和定向返工机制，但已按论文转译与场景级文本交接重新设计。不迁移三套候选、逐阶段人工确认、固定节拍/镜长、项目资产库、平台发行策略、模型能力字段、参考图槽位、模型方言、API、分镜 JSON 或自动发布流程。
-
-## 规则文件
-
-- [paper-point-selection.md](references/paper-point-selection.md)：论文事实底线、红黄绿区和主锚点选择。
-- [style-axes.md](references/style-axes.md)：风格四轴与剧情装置。
-- [narrative-library.md](references/narrative-library.md)：四轴模式卡参考。
-- [drama-blueprint.md](references/drama-blueprint.md)：事实—机制—戏剧放大蓝图。
-- [story-engine.md](references/story-engine.md)：观众承诺、人物压力和升级系统。
-- [cinematic-tension.md](references/cinematic-tension.md)：高张力场景写法。
-- [script-writing.md](references/script-writing.md)：可拍场景剧本。
-- [scene-handoff.md](references/scene-handoff.md)：可直接输入的场景模板。
-- [quality-gates.md](references/quality-gates.md)：三道质量门与规则分级。
-- [output-schema.md](references/output-schema.md)：五份 TXT 的唯一交付合同。
-- [acceptance-tests.md](tests/acceptance-tests.md)：静态和端到端验收。
-
+- [paper-point-selection.md](references/paper-point-selection.md)：事实边界、锚点与不可替换性。
+- [dramatic-intensity.md](references/dramatic-intensity.md)：五档预设、覆盖与改档。
+- [style-axes.md](references/style-axes.md)：创作维度与自然语言解析。
+- [narrative-library.md](references/narrative-library.md)：可选叙事模式。
+- [drama-blueprint.md](references/drama-blueprint.md)：唯一项目蓝图。
+- [story-engine.md](references/story-engine.md)：人物选择、因果和回报。
+- [cinematic-tension.md](references/cinematic-tension.md)：场景张力、可见行动和声音。
+- [script-writing.md](references/script-writing.md)：完整场景写作与时间预算。
+- [scene-handoff.md](references/scene-handoff.md)：唯一场景交接模板。
+- [quality-gates.md](references/quality-gates.md)：检查、定向返工与媒体核对边界。
+- [output-schema.md](references/output-schema.md)：五份 TXT 的交付合同。
+- [acceptance-tests.md](tests/acceptance-tests.md)：待执行验收规范。
