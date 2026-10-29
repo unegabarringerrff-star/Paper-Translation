@@ -11,7 +11,7 @@
 - 保持数据、单位、比较对象、方向、显著性、因果或相关性质、结论和必要限定。
 - 不把虚构人物、场景、操作或后果说成论文实测。
 - 任何实际研究断言都可追溯到 fact_id 和来源位置。
-- 必要限定与相关断言在实际对白、可见行动或就近后期文字中承载。
+- 与屏幕理解不可分的必要限定与相关断言在实际对白、可见行动或就近后期文字中承载；科学上重要但屏幕不必要的样本量、实验条件或方法细节可留在事实整理/支撑记录，不强迫进入正片。
 - 事实、单场独立、人物连续性、时间可容纳和交接字段完整。
 - 低档不因缺少强反转失败；高档不因使用夸张词而合格。
 
@@ -32,9 +32,9 @@
 对每项主要事实分别记录表达方式和承载位置。
 
 表达方式：ON_SCREEN_EXPLICIT、ON_SCREEN_SIMPLIFIED、FICTIONAL_ANALOGY。
-承载位置：DIALOGUE、VISIBLE_ACTION、POST_TEXT、SUPPORTING_RECORD、OMITTED_NONESSENTIAL。
+承载位置：DIALOGUE、VISIBLE_ACTION、POST_TEXT、SUPPORTING_RECORD、OMITTED_FROM_MAIN_TEXT。
 
-FICTIONAL_ANALOGY 只替换叙事承载形式，不替换科学结论。OMITTED_NONESSENTIAL 只表示不进入正片，事实仍留在事实整理中。一个事实可有多个承载位置。
+FICTIONAL_ANALOGY 只替换叙事承载形式，不替换科学结论。OMITTED_FROM_MAIN_TEXT 只表示不进入正片，事实仍留在事实整理中；不要把“未入戏”误判成“科学不重要”。一个事实可有多个承载位置。
 
 ## 趣味性与吸引力底线
 
