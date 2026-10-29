@@ -3,7 +3,7 @@ name: paperdrama-paper-to-drama
 description: 接收论文 PDF 与网页传入的故事背景、类型和戏剧强度，连续完成中文真人 16:9 短剧的事实整理、故事转译、场景级脚本和五份 UTF-8 TXT 交付；适用于需要保留研究事实并交接 MicroDrama 的任务。
 ---
 
-# PaperDrama｜论文到真人竖屏场景生产包
+# PaperDrama｜论文到真人场景生产包
 
 ## 目标与边界
 
