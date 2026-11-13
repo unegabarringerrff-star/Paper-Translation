@@ -1,120 +1,94 @@
-# PaperDrama v2.2｜输出与数据结构规范
+# 四份 TXT 交付合同｜检查、脚本、剧情节点、原文与知识流
 
-## 默认配置
-- 学术受众：**非本领域大学生**。
-- 媒介：同时支持 **9:16竖屏**、**16:9横屏**短剧，单套故事和对白、逐镜双画幅说明。
-- 首次与每次“换一波”后的选择页：**恰好3套当前批次候选**，每套**仅** `剧名、主题、设定、背景` 四个字段 + A/B/C 编号；不得泄露故事细节。选择页尾句为“请选择 A、B 或 C；不满意可回复‘换一波’。”。
-- 分类依据：`references/narrative-library.md`，28主题+42设定+11背景+2可选内容受众，共83个标签；选择页不展示“受众”分类。
-- 每篇论文独立输出到 `outputs/<论文文件名>/`，不静默覆盖旧结果。
+## 总则
 
-## 阶段 A：用户还没选模板
-自动分析论文，保存：
-- `paper_facts.md`：元数据、阅读范围、事实 ID、问题/矛盾/假设/方法/证据/结论/局限、核心限定及来源。
-- `dramatic_opportunities.md`：具有证据锚点的戏剧机会，内部评分和风险。
-- `drama_blueprints.md`：**内部**详细蓝图，须包含六项 Drama 语法对象：`characters`（count, identity, goal, personality, relationships）、`conflict`（opposing_demands, obstacles, escalation）、`plot`（inciting_incident, actions, surprise, climax, outcome）、`emotion.emotional_beats`、`performance`（dialogue_tone, pauses, actions, expressions, camera）、`rhythm`（opening_hook, turning_points, episode_cliffhangers）。另含八项论文→Drama 转译的状态、事实ID、表演方式与不得失真的边界。每套内部详情须以 `batch_id + option_id` 唯一索引，防止换一波之后错配。
-- `template_options.md`：对外可展示的**极简候选卡**，每套仅 `id、title、themes、settings、background`：
-```text
-A｜《有戏剧张力的剧名》
-主题：悬疑、科幻
-设定：系统
-背景：校园
+正常完成后，在用户指定目录或 `outputs/<论文文件名>/` 交付恰好四份 UTF-8 TXT，沿用用户指定的序号，不生成占位的 01 文件；同名文件不得静默覆盖（使用版本目录或记录版本）：
 
-B｜《另一个有戏剧张力的剧名》
-主题：喜剧、脑洞
-设定：灵魂互换
-背景：职场
+1. `00 检查文件.txt` —— 合并旧 00／01／02／04，供团队检查，**不放“论文事实节点”清单**。
+2. `02 脚本.txt` —— 原 `03_场景脚本_可直接输入.txt` 的场景内容，除删去“论文事实节点”板块外保持原有结构；**唯一默认送入 MicroDrama 的文件**。
+3. `03 剧情节点与论文原文.txt` —— 独立事实节点与原文对照文件，供网页按需展开、下载与论文溯源使用（默认不在主观看区显示），**不送入 MicroDrama，不烧录进视频**。
+4. `04 论文知识流与全貌解读.txt` —— 新增的播放器同步微知识流（04-A）和观后论文全貌补全（04-B）；只承载知识解释，不改动 02 的剧情，**不送入 MicroDrama，不烧录进视频**。
 
-C｜《第三个有戏剧张力的剧名》
-主题：权谋
-设定：强强联合
-背景：架空
-```
-上面内容为**字段格式示意**，不可作为所有论文的固定方案。对话仅展示**最新一轮**的三个选项，然后写“请选择 A、B 或 C；不满意可回复‘换一波’。”。不增加第五个候选内容字段。禁止添加人物、Hook、故事概况、冲突和结局、集数、每集时长、推荐理由、结果/证据说明等内容。
-- `template_history.md`：**内部**历轮批次的 A/B/C 选项及所对应的 Blueprint ID，保存 `batch_id`、`generation_round`、剧名、标签、叙事机制摘要和是否已选等。既有内容不静默丢弃，**不在选择页展示历次内容**。
-- `traceability_matrix.md`：内部事实→戏剧结构映射及论文页码；八类映射逐项标记 `SUPPORTED / NOT_APPLICABLE / UNVERIFIED`，每个已采用的学术要素带 `source_fact_ids`、`performance_mode`、`prohibited_distortion`、`audit_status`。
-- `paperdrama.json`：见下方数据协议。
+本版本不得再作为交付生成 `00_项目与风格说明.txt`、`01_论文事实与转译边界.txt`、`02_故事结构与质量结论.txt`、`03_场景脚本_可直接输入.txt`、`04_连续性与交付核对.txt`。不交付逐镜分镜、JSON、人物图片、参考图、配音、模型参数、平台接口或自动发布文件。
 
-阶段 A 状态为 `AWAITING_TEMPLATE_SELECTION`，`selected_template_id=null`、`selected_batch_id=null`。用户说“换一波”时不再重新构建已校验的事实库，直接将 `generation_round` 加一、`active_batch_id` 从 R001 变为 R002/R003…，将旧当前三选项存入 `template_history.md` 并以新选项替换 `template_options.md`。允许连续多轮；优先生成与当前和历史方案有实际区别的叙事，不通过编造研究提升新颖度。刷新不会把 `selected_by_user` 改为 true，也不会创建完整脚本。
+## 00 检查文件.txt（旧 00＋01＋02＋04 内容合并）
 
-## 阶段 B：用户选择 A/B/C 后
-保存：
-- `series_outline.md`：剧名、所选方案、总集数、每集题目/学术目标/故事目标/计划时长及总时长。
-- `full_script.md`：**全部剧集**的全部场景、镜头编号、起止秒数、机位、可表演动作、全部对白与人物情绪、配音/环境声/音效/字幕与证据 ID；每镜同时含 `vertical_9_16`、`horizontal_16_9` 两种构图（若用户明确只要一种则按需收敛）。
-- `quality_report.md`：事实一致性、戏剧质量和镜头时长总和审查结果 `PASS / REVIEW / FAIL`。
-- 更新 `traceability_matrix.md` 和 `paperdrama.json`，状态 `SCRIPT_READY_FOR_REVIEW` 或事实无法核实时 `BLOCKED_FOR_FACT_REVIEW`。
+此文件按以下顺序组织，保留原四份供检查的全部非“论文事实节点”信息、事实台账与质量核对，不以空标题或链接代替正文：
 
-## paperdrama.json 样式与必需字段
-```json
-{
-  "skill_version": "2.2.0",
-  "workflow": {
-    "status": "AWAITING_TEMPLATE_SELECTION",
-    "generation_round": 1,
-    "active_batch_id": "R001",
-    "selected_batch_id": null,
-    "selected_template_id": null,
-    "selected_by_user": false,
-    "human_approved": false
-  },
-  "defaults": {
-    "academic_audience": "非本领域大学生",
-    "media_aspect_ratios": ["9:16", "16:9"],
-    "language": "zh-CN"
-  },
-  "paper": {
-    "title": "",
-    "source_file": "paper.pdf",
-    "pages_read": [],
-    "missing_sections": []
-  },
-  "facts": [
-    {
-      "fact_id": "F001",
-      "bucket": "motivation",
-      "tags": ["research_question"],
-      "statement": "示例事实（执行时必须替换成原文真实内容）",
-      "source": {"pdf_page": 1, "section": "Introduction", "locator": "第一段"},
-      "priority": "A_CORE",
-      "certainty": "supported",
-      "qualifiers": []
-    }
-  ],
-  "opportunities": [
-    {"id": "O01", "type": "curiosity", "source_fact_ids": ["F001"], "risks": []}
-  ],
-  "template_options": [
-    {"id": "A", "title": "剧名A", "themes": ["悬疑"], "settings": ["系统"], "background": ["校园"]},
-    {"id": "B", "title": "剧名B", "themes": ["喜剧"], "settings": ["灵魂互换"], "background": ["职场"]},
-    {"id": "C", "title": "剧名C", "themes": ["权谋"], "settings": ["强强联合"], "background": ["架空"]}
-  ],
-  "internal_blueprints_file": "drama_blueprints.md",
-  "template_history_file": "template_history.md",
-  "academic_to_drama_map_file": "traceability_matrix.md",
-  "series": null,
-  "checks": {
-    "facts": "REVIEW",
-    "narrative": "REVIEW",
-    "production": "REVIEW",
-    "blocking_issues": []
-  }
-}
-```
+### A｜项目与风格说明（旧 00）
+片名、版本、生成日期、论文来源和可读范围、缺失章节、受众、语言、16:9 画幅、总时长、集数、场数、每集目标时长（60–180 秒）、网页指定的世界与类型、系统补齐假设、预设强度、覆盖项、实际策略、观众承诺、改编声明，以及新四份文件职责。
 
-**注意**：JSON 示例表示字段形状，不是实际论文的事实或固定类型。真正输出必须按论文生成三个叙事机制不同的方案；对外 `template_options` 对象只能保留 5 个属性（含 id），不得包含 `hook`、`characters`、`beats`、`episode_count_estimate`、`plot` 等剧情或制作信息。
+### B｜论文事实与转译边界（旧 01）
+主要 fact_id、原文位置、主张、性质、证据状态、重要性和必要限定；主锚点与辅助锚点；红黄绿区；论文事实到人物选择的转译链；各主要事实的科学重要性、屏幕必要性、表达方式与承载位置；不可替换性检查；未核验但不阻断的内容。
+**注意：事实台账 ≠ “论文事实节点”。**此节保留普通事实核验与源位置记录，但不复制按集/场/时间触发的节点条目，不整理供播放器展示的节点数据。节点统一放在 03。
 
-阶段 B 更新 `workflow.selected_batch_id`（默认最新的 `active_batch_id`，但可根据用户明确请求选择历史批次）、`workflow.selected_template_id`（该批次的 A/B/C）、`selected_by_user=true`，**用 `selected_batch_id+selected_template_id` 精准定位内部蓝图**，并填写：
-- `series.title`、`series.total_episode_count`、`series.total_duration_s`、`series.episode_duration_s`。
-- `series.episodes[].id/title/duration_s/academic_goal/fact_ids/scenes`。
-- `series.episodes[].scenes[].id/location/duration_s/shots`。
-- `shots[].id/start_s/end_s/duration_s/camera/action/dialogue_lines/subtitles/audio/fact_ids/truth_status/vertical_9_16/horizontal_16_9`。
-- 如用户明确只要一种画幅，记录 `defaults.media_aspect_ratios` 的有效覆盖值并允许省略另一种画幅镜头字段。
-- `full_script.md` 是主要交付，JSON 不可取代实际可读脚本。
+### C｜故事结构与质量结论（旧 02）
+网页风格参数、自动细分的 engine/device/钩子、唯一蓝图、关键人物过往经历及其对当前选择的影响、人物目标与阻力、分集分场概要、每集目标时长与功能、每场进入状态、行动、状态变化和出去压力；所选档位或自定义变体的验收证据；Gate A、B、C、D 结论与定向修订摘要（D 为新增的 04 知识流检查）。
 
-## 验收不变量
-1. 首次及每次刷新候选展示：恰好3套**当前批次**；每套仅剧名、主题、设定、背景。保存的 `template_options.md` 与当轮对话一致（末尾选择/刷新提示不计）。旧批次保存在内部 `template_history.md`。
-2. 用户“换一波”可连续执行、不需理由、不重复处理同一论文事实；`generation_round` 自增、批次ID唯一、A/B/C 始终只指向最新一批。选历史方案需要明确旧轮次和选项；如果参照不清楚须先确认轮次。
-3. 默认受众为非本领域大学生；两种画幅同时有实质性构图建议。
-4. 内部蓝图必须填写六类 Drama 表演语法和八类论文映射，不可留空凑形式。每条有研究断言的映射须有 `fact_id`；不适用的研究元素标记 `NOT_APPLICABLE`，不能凭空发明实验/争议/未来计划。研究结论、样本与局限不得因剧情修改。
-5. 全部镜头时间之和 = 场景时长；场景时长之和 = 单集时长；单集时长之和 = 全剧总时长。
-6. 用户未选择前不写最终脚本；用户选择后输出所有剧集的完整对白、镜头、音效；不只输出故事梗概。
-7. 未经用户实际审核，`human_approved=false`。
+### D｜连续性与交付核对（旧 04）
+文本交付检查：稳定的 E01-S01 场次顺序、人物称呼和状态、出镜分类、道具、信息、关系、时长、对白字幕、画面文字、必须保留信息与事实边界；局部返工不重排未受影响场次。
+交付核对：每场脚本版本、人物、动作、对白字幕、画面文字、事实表达、精确文字、时长和连续性是否已在文本中明确安排；问题标为 REVISE，注明应回到事实、故事、场景、对白、连续性或后期文字哪层修订。
+只记录整体“03 节点与原文对照：已完成/待修订”及“04 知识流与全貌解读：已完成/待修订”的**交付状态**，不重复节点内容。
+
+## 02 脚本.txt（原 03 场景脚本）
+
+按 `scene-handoff.md` 的文件头与每场模板写完整场景。保留原有的人物设定、场景编号、剧情目的、论文锚点、人物分类、开场状态、动作与对白、逐字对白字幕、旁白、声音、构图、结束状态、必须保留台词/知识点、画面文字/图层内容、核对备注等字段及内容。
+
+**唯一需要从原 03 脚本移走的字段是“论文事实节点”及其节点正文。**不要因此删除原有的论文锚点、fact_id 核对备注、事实必要限定、对白、知识点、画面文字或场景时长。脚本不含独立的播放器节点记录或节点索引。
+
+不得出现整张事实表、评分过程、候选方案、文件路径、内部流程、模型方言、逐镜提示词、JSON 或占位语。核对备注允许保留必要来源和限定，但不能变成画面文字或对白。
+
+## 03 剧情节点与论文原文.txt（新增）
+
+从**旧 00—04 所有涉及“论文事实节点”的内容**和本轮实际故事对照中汇总节点，去重并统一规范；不得仅搬运旧 03 的节点而遗漏旧 00／01／02／04 中关联的事实、限定、来源或剧情关系。该文件独立完整、便于网页播放器按集/场检索、与论文原文逐项比对。
+
+文件头写：片名、脚本版本、论文标题、作者/来源（可核实时）、实际阅读范围、缺失章节、原文语言、与 `02 脚本.txt` 的版本对应关系、节点总数、用途声明（播放器辅助信息；不进入 MicroDrama 与视频烧录）。
+
+每条节点依次记录：
+- **节点 ID**：如 `PN-E01-S01-01`，在同一交付版本内唯一且稳定。
+- **剧情位置**：所属集 E01、场次 E01-S01，与 02 的稳定场次 ID 对齐；同场多节点按出现次序编号。
+- **触发锚点**：场内具体可辨认的动作/对白/事件；可记录预估时间区间（例如 00:20–00:35），注明“预计，成片需重新对时”，不得声称已验证成片精确时码。
+- **对应剧情节点**：简要描述人物在该处作出的选择、出现的冲突或后果。标记为“虚构剧情转译”，不得写成论文实证结论。
+- **论文事实**：一至数句准确、可核查的研究主张，保留适用条件、方法限制和结论强弱，不伪造数字/显著性。
+- **论文原文摘录**：摘录对应 PDF 中实际核对过的原文句子或必要短句，标识原文语言；必须逐字匹配已阅读内容。若原文不可读取，不可编造引文，按事实阻断/待核验规则处理。
+- **原文出处**：论文标题、章节/小节、PDF 页码或印刷页码（区分两者）、图表/表号（适用时）；引用论文参考文献中的观点时明确标注“引用观点”而非作者自己的发现。
+- **关联 fact_id**：与 00 事实台账一致；多个 ID 时逐项列出。
+- **事实—剧情关系**：解释论文研究机制如何转译为当前剧情，明确真实证据与虚构情节之间的边界。
+- **备注**：原文所需限定、原文覆盖程度或待核验问题（无则“无”）。
+
+整理要求：
+1. 对旧 00、01、02、03、04 中同一事实/相同剧情触发的节点去重；不同场景实际触发即使关联同一 fact_id 仍单独列节点。
+2. 全部节点必须能反查 `02 脚本.txt` 的真实场次及该场可识别的剧情触发，不编造 02 中不存在的行动、对白或画面时间。
+3. 不得把改编世界的事实、剧情后果、虚构人物经历伪称论文原文或实验证据；“论文事实”“原文摘录”“剧情节点”“转译关系”分别填写。
+4. 对科学重要但不必出现在对白的样本、实验条件或局限，可在 03 以对应剧情锚点解释；没有对应剧情节点的支撑事实仍只留在 00 的事实台账，不伪造触发点凑数。
+5. 每个节点必须有真实可核查的原文与来源。原文不可核验的关键节点，进入 `BLOCKED_FOR_FACT_REVIEW`，不交付生产就绪四件套；非关键补充项不能造引文，写入 00 待核验并不生成伪节点。
+
+## 04 论文知识流与全貌解读.txt（新增）
+
+读取 [knowledge-flow.md](knowledge-flow.md)。04 以 00 的完整事实台账、02 的实际剧本及 03 的真实对照节点为依据；既不能只从主 Drama 钩子中提取，也不能要求 02 按论文的研究顺序重写。
+
+**04 仅交付以下两个正文板块（加必要元信息），不单独交付“知识覆盖与补全关系”表：**
+
+### 04-A｜实时微知识流
+
+- 先按整篇论文建立必要知识清单并在内部检查剧情覆盖；按集/场剧情触发输出知识条目，主题间可以非线性推进。
+- 一条微知识只表达一个独立事实，采用“陈述式短标题”为主；重要概念或纠偏点可加一句解释，少用重复的提问—回答形式。
+- 单集参考约 2–4 个主题、每分钟 7–9 条微知识，均为探索性目标，不是硬性验收数量；信息负荷高的时段可以少弹、延后或移至观后。
+- 每条按固定标签记录：`knowledge_id`（如 KC-E01-01）、`theme_id`、`level`（微知识/核心解释）、`title`、`explanation`（无则 NONE）、`relationship`、`fact_ids`、`scene_id`、`display_anchor`、`estimated_window`（注明“预计，成片重对时”）、`pn_id`（无真实 03 对应时 NONE）、`source_location`、`reveal_policy`（即时解释/延迟揭示/独立补全）。
+- `fact_ids` 必须在 00 存在；`scene_id` 与显示锚点必须在 02 真实存在；只有真实对应 03 节点时才填写 `pn_id`。对纯论文补全知识，不伪造 03 的剧情映射。
+- 网页建议最新条目高亮、旧条目保留标题并允许回看，知识按主题累积；显示行为仅为前端消费约定，不生成前端代码。
+
+### 04-B｜观后论文全貌解读
+
+- 可给每集提供简短回顾；全剧结束后必须提供“这篇论文讲了什么”的整篇论文总览。
+- 按研究类型适配研究问题、方法/论证、主要发现、结论与局限，**主动补足剧情未涉及的必要知识**，而不是简单重排 04-A 的句子。
+- 每个全貌单元记录 `overview_id`、`section`、`summary`、`fact_ids`、`display_status`（已解释/部分解释/未解释）；后两类说明重要补充，已解释项简要回顾。独立覆盖核对在生成时内部完成，不作为第三个输出板块。
+- 不制造实验、数据、结论，不混淆剧情虚构和论文证据；缺失适用范围时写 NOT_APPLICABLE，关键事实缺失遵照阻断规则。
+
+04 中时间标记仅为脚本预估，视频成片需由下游对齐。新 04 与已并入 00 的旧 `04_连续性与交付核对.txt` 完全不同；旧文件仍禁止单独输出。最终文件维持 UTF-8 TXT 合同，**不新增 JSON 交付**。
+
+## 状态与完成条件
+
+`SCRIPT_PACKAGE_READY`：四份 TXT 齐全且相互对齐；Gate A、B、C、D 通过；02 不含“论文事实节点”；03 中节点、原文、出处和剧情位置可追踪，00 不重复播放器节点；04-A 与剧情时序相容、04-B 覆盖整篇必要知识且每条事实可追溯。
+
+`BLOCKED_FOR_FACT_REVIEW`：关键事实或关键原文不可核验的交付前状态。只保存可靠事实整理及阻断清单；不得生成可误送下游的 `02 脚本.txt`，或宣称完成四件套。
